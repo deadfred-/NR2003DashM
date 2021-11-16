@@ -626,7 +626,6 @@ namespace NR2003DashM
                 // make sure we are running first before continuing
                 if (running)
                 {
-
                     LapCrossing lapCache = new LapCrossing()
                     {
                         carIdx = new byte[] { 0, 0, 0, 0 },
@@ -635,7 +634,6 @@ namespace NR2003DashM
                         crossedAt = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 },
                     };
                     TimeSpan lap = new TimeSpan(0, 0, 0, 0, 0);
-
 
                     // main loop to pull data out of memory
                     while (true)
@@ -674,6 +672,7 @@ namespace NR2003DashM
                                     int milliseconds = Convert.ToInt32((crossed - seconds) * 1000);
                                     TimeSpan crossedAt = new TimeSpan(0, 0, 0, seconds, milliseconds);
                                     int carIdx = BitConverter.ToInt32(_lap.carIdx, 0);
+                                    //carIdx is player
                                     if (carIdx == 0 && crossedAt > lap)
                                     {
                                         LapTime = (float)((crossedAt - lap).TotalSeconds);
@@ -699,7 +698,6 @@ namespace NR2003DashM
                         if (se != IntPtr.Zero)
                         {
                             Standings _standing = (Standings)Marshal.PtrToStructure(se, typeof(Standings));
-                            //BestLapTimeText = string.Format("{0:0.000} - ({1})", _standing.fastestLap.time,_standing.fastestLap.lap);
                             _raceInfo.Standings = _standing;
                             _raceInfo.BestLapTime = _standing.fastestLap.time;
                             _raceInfo.BestLapNumber = _standing.fastestLap.lap;
@@ -723,8 +721,6 @@ namespace NR2003DashM
                         IntPtr od = NR2003Binding.GetOpponentCarData();
                         if (od != IntPtr.Zero)
                         {
-                            //OpponentCarData[] _oppCarData = (OpponentCarData[])Marshal.PtrToStructure(od, typeof(OpponentCarData[]));
-                            //var totalCars = _raceInfo.
                             _raceInfo.OpponentCarDatas = UtilFunctions.GetStructArrayFromIntPtr<OpponentCarData>(od, 48).ToList();
                         }
 
@@ -737,6 +733,12 @@ namespace NR2003DashM
                             var DriverEntries = UtilFunctions.GetStructArrayFromIntPtr<DriverEntry>(de, 48).ToList();
                         }
                         */
+
+                        IntPtr di = NR2003Binding.GetDriverInput();
+                        if (di != IntPtr.Zero)
+                        {
+                            _raceInfo.DriverInput = (DriverInput)Marshal.PtrToStructure(di, typeof(DriverInput));
+                        }
 
                         //game only provides data at 36 hz
                         Thread.Sleep(25);

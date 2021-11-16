@@ -8,8 +8,6 @@ namespace NR2003DashM.Util
 {
     public class RaceInfo
     {
-        public int SessionCookie { get; set; }
-        public int SessionID { get; set; }
         public string DriverName { get; set; }
         public string DriverID { get; set; }
         public int CurrentLap { get; set; }
@@ -18,9 +16,10 @@ namespace NR2003DashM.Util
         public int BestLapNumber { get; set; }
 
         public GaugeData GaugeData { get; set; }
-
+        
         public Standings Standings { get; set; }
 
+        private SessionInfo _sessionInfo;
         /// <summary>
         /// Because we have to clear our cache (per doc) when session num or cookie change, we clear the data in the setter.
         /// </summary>
@@ -28,12 +27,12 @@ namespace NR2003DashM.Util
         {
             get
             {
-                return SessionInfo;
+                return this._sessionInfo;
             }
             set
             {
 
-                if (value.sessionCookie != this.SessionCookie || value.sessionNum != this.SessionID)
+                if (value.sessionCookie != this._sessionInfo.sessionCookie || value.sessionNum != this._sessionInfo.sessionNum)
                 {
                     // reset values because our session chnaged.
                     this.LapCrossings = new List<LapCrossing>();
@@ -43,11 +42,8 @@ namespace NR2003DashM.Util
                     this.Standings = new Standings();
 
                 }
-                
-                this.SessionInfo = value;
 
-                this.SessionCookie = value.sessionCookie;
-                this.SessionID = value.sessionNum;
+                this._sessionInfo = value;                
 
             }
         }
