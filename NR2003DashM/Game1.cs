@@ -6,6 +6,7 @@ using static NR2003DashM.NR2003Types;
 using System.Runtime.InteropServices;
 using System.Threading;
 using NR2003DashM.Util;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace NR2003DashM
@@ -37,27 +38,27 @@ namespace NR2003DashM
         Texture2D fuel_pres_needleSprite;
 
         SpriteFont gameFont;
-        SpriteFont rpmNeedleRotationFont;
+        SpriteFont MiddleInfoFont;
         SpriteFont rpmFont;
         SpriteFont OilTempFont;
         SpriteFont OilPresFont;
         SpriteFont WaterTempFont;
         SpriteFont FuelPresFont;
 
-        Vector2 lapTime_FontPosition = new Vector2(0, 0);
-        Vector2 lapInfo_FontPosition = new Vector2(0,0);
+        Vector2 middleInfo_FontPosition = new Vector2(0, 0);
+        Vector2 lapInfo_FontPosition = new Vector2(0, 0);
 
-        Vector2 tach_faceSpritePosition = new Vector2(0,100);
-        Vector2 tach_needleSpritePosition = new Vector2(0,0); // this gets set by the face
+        Vector2 tach_faceSpritePosition = new Vector2(0, 100);
+        Vector2 tach_needleSpritePosition = new Vector2(0, 0); // this gets set by the face
         Vector2 tach_rpmFontPosition = new Vector2(0, 0);
 
-        Vector2 oil_temp_faceSpritePosition = new Vector2(0,0);
+        Vector2 oil_temp_faceSpritePosition = new Vector2(0, 0);
         Vector2 oil_temp_needleSpritePosition = new Vector2(0, 0);
         Vector2 oil_temp_FontPosition = new Vector2(0, 0);
 
         Vector2 oil_pres_faceSpritePosition = new Vector2(0, 0);
         Vector2 oil_pres_needleSpritePosition = new Vector2(0, 0);
-        Vector2 oil_pres_FontPosition = new Vector2(0,0);
+        Vector2 oil_pres_FontPosition = new Vector2(0, 0);
 
         Vector2 water_temp_faceSpritePosition = new Vector2();
         Vector2 water_temp_needleSpritePosition = new Vector2();
@@ -77,7 +78,7 @@ namespace NR2003DashM
         Vector2 oilpresneedleScale;
 
         Vector2 mediumFaceScale;
-        
+
         Vector2 mediumNeedleScale;
 
 
@@ -92,9 +93,6 @@ namespace NR2003DashM
         //float tach_needleSpriteX = 200;
         float tach_needleSpriteX;
         float tach_needleSpriteY;
-
-        
-        
 
         // Face Sprite Scaling
         float oil_temp_faceSpriteWidth = smallScale;
@@ -123,16 +121,15 @@ namespace NR2003DashM
 
         string LastLapTimeText = "";
         string LapInfoText = "";
+        string MiddleInfoText = "";
         float LapTime;
 
         string TachValueText = "";
         string TachRotationText = "";
 
-        
         string oilTempRotation = "";
         string oilTempText = "";
 
-        
         string oilPresText = "";
         string oilPresRotationText = "";
 
@@ -149,7 +146,7 @@ namespace NR2003DashM
         float gaugeRPM;
         float gaugeOilTemp;
         float gaugeOilPres;
-        float gaugewWaterTemp;        
+        float gaugewWaterTemp;
         float gaugeFuel;
         float gaugeFuelPres;
         float gaugeVoltage;
@@ -175,18 +172,13 @@ namespace NR2003DashM
         Color waterTempNeedleSpritecolor = Color.White;
         Color fuelPresNeedleSpritecolor = Color.White;
 
-        
-
-       
-
-
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
-            
+
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            
+
         }
 
         protected override void OnExiting(Object sender, EventArgs args)
@@ -195,7 +187,7 @@ namespace NR2003DashM
 
             // Stop the threads
             NR2003Binding.EndTelemetry();
-        }        
+        }
 
         protected override void Initialize()
         {
@@ -212,10 +204,10 @@ namespace NR2003DashM
                 IsBackground = true
             };
             GaugeDataThread.Start();
-            
 
-        // getdata
-        Thread GaugeUpdateThread = new Thread(GetGameInfo)
+
+            // getdata
+            Thread GaugeUpdateThread = new Thread(GetGameInfo)
             {
                 IsBackground = true
             };
@@ -236,20 +228,22 @@ namespace NR2003DashM
             // move tach to middle of graphics
             tach_needleSpriteX = tac_faceSpriteX / 1.28f;
             oil_temp_needleSpriteWidth = oil_temp_faceSpriteWidth / 1.28f;
-            oil_pres_needleSpriteWidth = oil_pres_faceSpriteWidth /1.28f;
+            oil_pres_needleSpriteWidth = oil_pres_faceSpriteWidth / 1.28f;
             water_temp_needleWpriteWidth = water_temp_needleWpriteWidth / 1.28f;
             fuel_pres_needleWpriteWidth = fuel_pres_needleWpriteWidth / 1.28f;
 
-            tach_faceSpritePosition.X = (_graphics.PreferredBackBufferWidth / 2) - (tac_faceSpriteX/2);
+            tach_faceSpritePosition.X = (_graphics.PreferredBackBufferWidth / 2) - (tac_faceSpriteX / 2);
             tach_faceSpritePosition.Y = (_graphics.PreferredBackBufferHeight / 2) - (tac_faceSpriteX / 2);
-            tach_rpmFontPosition = new Vector2(tach_faceSpritePosition.X + (tac_faceSpriteX/2) + 30, tach_faceSpritePosition.Y + (tac_faceSpriteX / 2) - 10);
+            tach_rpmFontPosition = new Vector2(tach_faceSpritePosition.X + (tac_faceSpriteX / 2) + 30, tach_faceSpritePosition.Y + (tac_faceSpriteX / 2) - 10);
 
 
-            lapTime_FontPosition.X = tach_faceSpritePosition.X;
-            lapTime_FontPosition.Y = tach_faceSpritePosition.Y - 40;
+            //lapTime_FontPosition.X = tach_faceSpritePosition.X;
+            middleInfo_FontPosition.X = (_graphics.PreferredBackBufferWidth / 2) - (tac_faceSpriteX/2);
+            middleInfo_FontPosition.Y = 0;
 
-            lapInfo_FontPosition.X = tach_faceSpritePosition.X;
-            lapInfo_FontPosition.Y = tach_faceSpritePosition.Y - 70;
+            //lapInfo_FontPosition.X = tach_faceSpritePosition.X;
+            lapInfo_FontPosition.X = 0;
+            lapInfo_FontPosition.Y = 0;
 
             // needle.xnb
             tach_needleSprite = Content.Load<Texture2D>("bigneedle");
@@ -260,33 +254,37 @@ namespace NR2003DashM
             // oil temp
             oil_temp_faceSprite = Content.Load<Texture2D>("oil_temp_face");
             oil_temp_faceSpritePosition.X = tach_faceSpritePosition.X + (tac_faceSpriteX);
-            oil_temp_faceSpritePosition.Y = tach_faceSpritePosition.Y - (oil_temp_faceSpriteWidth / 3);
+            //oil_temp_faceSpritePosition.Y = tach_faceSpritePosition.Y - (oil_temp_faceSpriteWidth / 4);
+            oil_temp_faceSpritePosition.Y = tach_faceSpritePosition.Y ;
 
-             oil_temp_FontPosition = new Vector2(oil_temp_faceSpritePosition.X +(oil_temp_faceSpriteWidth/2) + 30, oil_temp_faceSpritePosition.Y + (oil_temp_faceSpriteWidth/2) - 10);
+            oil_temp_FontPosition = new Vector2(oil_temp_faceSpritePosition.X + (oil_temp_faceSpriteWidth / 2) + 30, oil_temp_faceSpritePosition.Y + (oil_temp_faceSpriteWidth / 2) - 10);
 
             // oil needle
             oil_temp_needleSprite = Content.Load<Texture2D>("bigneedle");
-            oil_temp_needleSpritePosition = new Vector2(oil_temp_faceSpritePosition.X + (oil_temp_faceSpriteWidth/2), oil_temp_faceSpritePosition.Y + (oil_temp_faceSpriteWidth / 2));
-            
+            oil_temp_needleSpritePosition = new Vector2(oil_temp_faceSpritePosition.X + (oil_temp_faceSpriteWidth / 2), oil_temp_faceSpritePosition.Y + (oil_temp_faceSpriteWidth / 2));
+
             // oil pressure
             oil_pres_faceSprite = Content.Load<Texture2D>("oil_press_face");
             oil_pres_faceSpritePosition.X = tach_faceSpritePosition.X + (tac_faceSpriteX);
-            oil_pres_faceSpritePosition.Y = tach_faceSpritePosition.Y + (tac_faceSpriteX / 2);
+            //oil_pres_faceSpritePosition.Y = tach_faceSpritePosition.Y + (tac_faceSpriteX / 2);
+            oil_pres_faceSpritePosition.Y = tach_faceSpritePosition.Y + (oil_temp_faceSpriteWidth + 5);
             oil_pres_FontPosition = new Vector2(oil_pres_faceSpritePosition.X + (oil_pres_faceSpriteWidth / 2) + 30, oil_pres_faceSpritePosition.Y + (oil_pres_faceSpriteWidth / 2) - 10);
 
             // oil press needle
             oil_pres_needleSprite = Content.Load<Texture2D>("bigneedle");
-            oil_pres_needleSpritePosition = new Vector2(oil_pres_faceSpritePosition.X + (oil_pres_faceSpriteWidth/2),oil_pres_faceSpritePosition.Y + (oil_pres_faceSpriteWidth /2));
+            oil_pres_needleSpritePosition = new Vector2(oil_pres_faceSpritePosition.X + (oil_pres_faceSpriteWidth / 2), oil_pres_faceSpritePosition.Y + (oil_pres_faceSpriteWidth / 2));
 
             // water temp
             water_temp_faceSprite = Content.Load<Texture2D>("water_temp_face");
             water_temp_faceSpritePosition.X = tach_faceSpritePosition.X - (water_temp_faceSpriteWidth);
-            water_temp_faceSpritePosition.Y = tach_faceSpritePosition.Y - (water_temp_faceSpriteWidth / 3);
+            //water_temp_faceSpritePosition.Y = tach_faceSpritePosition.Y - (water_temp_faceSpriteWidth / 4);
+            water_temp_faceSpritePosition.Y = tach_faceSpritePosition.Y;
             water_temp_FontPosition = new Vector2(water_temp_faceSpritePosition.X + (water_temp_faceSpriteWidth / 2) + 30, water_temp_faceSpritePosition.Y + (water_temp_faceSpriteWidth / 2) - 10);
 
             fuel_pres_faceSprite = Content.Load<Texture2D>("fuel_press_face");
             fuel_pres_faceSpritePosition.X = tach_faceSpritePosition.X - (fuel_pres_faceSpriteWidth);
-            fuel_pres_faceSpritePosition.Y = tach_faceSpritePosition.Y + (tac_faceSpriteX / 2); 
+            //fuel_pres_faceSpritePosition.Y = tach_faceSpritePosition.Y + (tac_faceSpriteX / 2);
+            fuel_pres_faceSpritePosition.Y = tach_faceSpritePosition.Y + (oil_temp_faceSpriteWidth + 5);
 
             fuel_pres_FontPosition = new Vector2(fuel_pres_faceSpritePosition.X + (fuel_pres_faceSpriteWidth / 2) + 30, fuel_pres_faceSpritePosition.Y + (fuel_pres_faceSpriteWidth / 2) - 10);
 
@@ -297,7 +295,7 @@ namespace NR2003DashM
             fuel_pres_needleSpritePosition = new Vector2(fuel_pres_faceSpritePosition.X + (fuel_pres_faceSpriteWidth / 2), fuel_pres_faceSpritePosition.Y + (fuel_pres_faceSpriteWidth / 2));
 
             gameFont = Content.Load<SpriteFont>("faceFont");
-            rpmNeedleRotationFont = Content.Load<SpriteFont>("faceFont");
+            MiddleInfoFont = Content.Load<SpriteFont>("faceFont");
             rpmFont = Content.Load<SpriteFont>("TachFaceFont");
             OilTempFont = Content.Load<SpriteFont>("SmallGaugeFont");
             OilPresFont = Content.Load<SpriteFont>("SmallGaugeFont");
@@ -307,7 +305,7 @@ namespace NR2003DashM
 
             scale = new Vector2(tac_faceSpriteX / (float)tach_faceSprite.Width, tac_faceSpriteX / (float)tach_faceSprite.Width);
             tac_faceSpriteY = tach_faceSprite.Height * scale.Y;
-            
+
             needleScale = new Vector2(tach_needleSpriteX / (float)tach_needleSprite.Width, tach_needleSpriteX / (float)tach_needleSprite.Width);
             tach_needleSpriteY = tach_needleSprite.Height * needleScale.Y;
 
@@ -320,7 +318,7 @@ namespace NR2003DashM
 
 
             // get origin of needle
-            needleOrigin = new Vector2(tach_needleSprite.Width/2, tach_needleSprite.Height/2);
+            needleOrigin = new Vector2(tach_needleSprite.Width / 2, tach_needleSprite.Height / 2);
             oilTempNeedleOrigin = new Vector2(oil_temp_needleSprite.Width / 2, oil_temp_needleSprite.Height / 2);
             oilPresNeedleOrigin = new Vector2(oil_pres_needleSprite.Width / 2, oil_pres_needleSprite.Height / 2);
             fuelPresNeedleOrigin = new Vector2(oil_pres_needleSprite.Width / 2, oil_pres_needleSprite.Height / 2);
@@ -349,7 +347,6 @@ namespace NR2003DashM
                 testSpin = false;
                 testHold = true;
             }
-
             if (testSpin)
             {
                 //rotationVal += 5;
@@ -368,7 +365,7 @@ namespace NR2003DashM
                 fuelPresVal += 0.125f;
                 if (fuelPresVal >= 105)
                     fuelPresVal = 0;
-            } 
+            }
 
             // hold RPM
             if (testHold)
@@ -410,15 +407,15 @@ namespace NR2003DashM
                     rpmWarning = true;
                     waterTempWarning = true;
                     fuelPresWarning = true;
-                }                
+                }
                 else
                 {
                     rpmVal = 0;
                     oilTempVal = 0;
                     fuelPresVal = 0;
-                } 
+                }
             }
-            
+
             // get live data
             if (!testSpin && !testHold)
             {
@@ -429,15 +426,15 @@ namespace NR2003DashM
                 fuelPresVal = gaugeFuelPres;
             }
 
-            float tachFormula = 1.9f + ((rpmVal / 1000) /2) - 0.04f;
+            float tachFormula = 1.9f + ((rpmVal / 1000) / 2) - 0.04f;
             tach_needleRotation = tachFormula;
-            
-            float oilFormula = (oilTempVal/42.55f) + 1.6f;
+
+            float oilFormula = (oilTempVal / 42.55f) + 1.6f;
             if (oilTempVal <= 100)
                 oilFormula = 3.9f;
-            oil_tempneedleRoatation = oilFormula;            
+            oil_tempneedleRoatation = oilFormula;
             oilTempRotation = oilFormula.ToString();
-            
+
             float waterTempFormula = (waterTempVal / 42.55f) + 1.6f;
             if (waterTempVal <= 100)
                 waterTempFormula = 3.9f;
@@ -461,7 +458,8 @@ namespace NR2003DashM
             if (rpmWarning)
             {
                 rpmSpriteColor = Color.Red;
-            } else
+            }
+            else
             {
                 rpmSpriteColor = Color.White;
             }
@@ -469,15 +467,17 @@ namespace NR2003DashM
             if (oilTempWarning)
             {
                 oilTempSpriteColor = Color.Red;
-            } else
+            }
+            else
             {
                 oilTempSpriteColor = Color.White;
             }
-            
+
             if (oilPresWarning)
             {
                 oilPresSpriteColor = Color.Red;
-            } else
+            }
+            else
             {
                 oilPresSpriteColor = Color.White;
             }
@@ -492,12 +492,18 @@ namespace NR2003DashM
 
 
             // logic for updating Text
-            LapInfoText = string.Format("Last Lap: {0}\r\nBest Lap: {1}({2})\r\nLaps Left: {3}",
-                _raceInfo.LastLapTime, 
-                _raceInfo.Standings.fastestLap.time, 
-                _raceInfo.Standings.fastestLap.lap,
-                _raceInfo.SessionInfo.lapsRemaining);
+            LapInfoText = string.Format("Last Lap: {0}\r\nBest Lap: {1}({2})",
+                _raceInfo.LastLapTime,
+                _raceInfo.Standings.fastestLap.time,
+                _raceInfo.Standings.fastestLap.lap
+                );
 
+
+            // generate middle text info
+            MiddleInfoText = string.Format("Laps since pit: {0}\r\nLaps Left: {1}",
+                _raceInfo.GetLapsSinceLastPit(), 
+                _raceInfo.SessionInfo.lapsRemaining
+                );
 
             base.Update(gameTime);
         }
@@ -509,19 +515,20 @@ namespace NR2003DashM
 
             _spriteBatch.Begin();
             // Background
-            _spriteBatch.Draw(backgroundSprite, new Vector2(0,0),Color.White);
+            _spriteBatch.Draw(backgroundSprite, new Vector2(0, 0), Color.White);
 
             // Lap Info Block
-            _spriteBatch.DrawString(gameFont,LapInfoText, lapInfo_FontPosition, Color.White);
-            
+            _spriteBatch.DrawString(gameFont, LapInfoText, lapInfo_FontPosition, Color.White);
+            _spriteBatch.DrawString(MiddleInfoFont, MiddleInfoText, middleInfo_FontPosition, Color.White);
+
             // Tach
             _spriteBatch.Draw(tach_faceSprite, position: tach_faceSpritePosition, sourceRectangle: null, rpmSpriteColor, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
-            _spriteBatch.Draw(tach_needleSprite, tach_needleSpritePosition, null,rpmNeedleSpriteColor, tach_needleRotation, needleOrigin, needleScale, SpriteEffects.None, 0);
-            _spriteBatch.DrawString(rpmFont, string.Format("{0}",TachValueText), tach_rpmFontPosition,Color.Black);
+            _spriteBatch.Draw(tach_needleSprite, tach_needleSpritePosition, null, rpmNeedleSpriteColor, tach_needleRotation, needleOrigin, needleScale, SpriteEffects.None, 0);
+            _spriteBatch.DrawString(rpmFont, string.Format("{0}", TachValueText), tach_rpmFontPosition, Color.Black);
 
             // Oil Temp
             _spriteBatch.Draw(oil_temp_faceSprite, position: oil_temp_faceSpritePosition, sourceRectangle: null, oilTempSpriteColor, 0, Vector2.Zero, oiltempScale, SpriteEffects.None, 0);
-            _spriteBatch.Draw(oil_temp_needleSprite, oil_temp_needleSpritePosition, null, oilTempNeedleSpriteColor, oil_tempneedleRoatation, oilTempNeedleOrigin, oiltempneedleScale, SpriteEffects.None, 0);            
+            _spriteBatch.Draw(oil_temp_needleSprite, oil_temp_needleSpritePosition, null, oilTempNeedleSpriteColor, oil_tempneedleRoatation, oilTempNeedleOrigin, oiltempneedleScale, SpriteEffects.None, 0);
             _spriteBatch.DrawString(OilTempFont, string.Format("{0}", oilTempText), oil_temp_FontPosition, Color.Black);
 
             // Oil Pressure
@@ -544,7 +551,7 @@ namespace NR2003DashM
         }
 
         // util function
-        
+
         // This function tells the DLL to get new data from the engine
         private void GetGagueInfoBG()
         {
@@ -619,7 +626,6 @@ namespace NR2003DashM
                         {
                             if (lc != IntPtr.Zero)
                             {
-
                                 LapCrossing _lap = (LapCrossing)Marshal.PtrToStructure(lc, typeof(LapCrossing));
 
                                 if (_lap != lapCache)
@@ -667,6 +673,31 @@ namespace NR2003DashM
                             SessionInfo _sessionInfo = (SessionInfo)Marshal.PtrToStructure(si, typeof(SessionInfo));
                             _raceInfo.SessionInfo = _sessionInfo;
                         }
+
+                        IntPtr ps = NR2003Binding.GetPitStop();
+                        if (ps != IntPtr.Zero)
+                        {
+                            PitStop _pitstop = (PitStop)Marshal.PtrToStructure(ps, typeof(PitStop));
+                            _raceInfo.PitLaps.Add(_raceInfo.CurrentLap);                            
+                        }
+
+                        IntPtr od = NR2003Binding.GetOpponentCarData();
+                        if (od != IntPtr.Zero)
+                        {
+                            //OpponentCarData[] _oppCarData = (OpponentCarData[])Marshal.PtrToStructure(od, typeof(OpponentCarData[]));
+                            //var totalCars = _raceInfo.
+                            _raceInfo.OpponentCarDatas = UtilFunctions.GetStructArrayFromIntPtr<OpponentCarData>(od, 48).ToList();
+                        }
+
+                        // driver entry
+                        // this needs work...
+                        /*
+                        IntPtr de = NR2003Binding.GetDriverEntry();
+                        if (de != IntPtr.Zero)
+                        {
+                            var DriverEntries = UtilFunctions.GetStructArrayFromIntPtr<DriverEntry>(de, 48).ToList();
+                        }
+                        */
 
                         //game only provides data at 36 hz
                         Thread.Sleep(25);
