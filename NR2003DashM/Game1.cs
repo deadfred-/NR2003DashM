@@ -578,9 +578,6 @@ namespace NR2003DashM
                 _spriteBatch.DrawString(StandingsFont, StandingsText, standings_FontPosition, Color.White);
             }
 
-
-            
-
             // Tach
             _spriteBatch.Draw(tach_faceSprite, position: tach_faceSpritePosition, sourceRectangle: null, rpmSpriteColor, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
             _spriteBatch.Draw(tach_needleSprite, tach_needleSpritePosition, null, rpmNeedleSpriteColor, tach_needleRotation, needleOrigin, needleScale, SpriteEffects.None, 0);
@@ -710,6 +707,7 @@ namespace NR2003DashM
                                         lap = crossedAt;
                                         lapCache = _lap;
                                     }
+                                    _raceInfo.LapCrossings.Add(_lap);
                                 }
                             }
                         }
@@ -736,7 +734,8 @@ namespace NR2003DashM
                         if (ps != IntPtr.Zero)
                         {
                             PitStop _pitstop = (PitStop)Marshal.PtrToStructure(ps, typeof(PitStop));
-                            _raceInfo.PitLaps.Add(_raceInfo.CurrentLap);
+                            //_raceInfo.PitLaps.Add(_raceInfo.CurrentLap);
+                            _raceInfo.LastPitLap = _raceInfo.CurrentLap;
                         }
 
                         IntPtr od = NR2003Binding.GetOpponentCarData();

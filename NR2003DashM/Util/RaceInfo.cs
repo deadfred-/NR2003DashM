@@ -10,13 +10,26 @@ namespace NR2003DashM.Util
     {
         public string DriverName { get; set; }
         public string DriverID { get; set; }
-        public int CurrentLap { get; set; }
+        private int _CurrentLap;
+        public int CurrentLap
+        {
+            get
+            {
+                if (this.LapCrossings.Count > 0)
+                {
+                    // get the most recent crossing where our carIDx = 0 (our car)
+                    _CurrentLap = BitConverter.ToInt32(LapCrossings.Where(x => BitConverter.ToInt32(x.carIdx) == 0).Last().lapNum);
+                }
+                return _CurrentLap;
+            }
+            // no set for this.
+        }
         public float LastLapTime { get; set; }
         public float BestLapTime { get; set; }
         public int BestLapNumber { get; set; }
 
         public GaugeData GaugeData { get; set; }
-        
+
         public Standings Standings { get; set; }
 
         private SessionInfo _sessionInfo;
@@ -35,7 +48,7 @@ namespace NR2003DashM.Util
                 if (value.sessionCookie != this._sessionInfo.sessionCookie || value.sessionNum != this._sessionInfo.sessionNum)
                 {
                     // reset values because our session chnaged.
-                    this.LapCrossings = new List<LapCrossing>();
+                    this.LapCrossings = new List<LapCrossing>
                     this.OpponentCarDatas = new List<OpponentCarData>();
                     this.PitLaps = new List<int>();
                     this.GaugeData = new GaugeData();
@@ -43,7 +56,7 @@ namespace NR2003DashM.Util
 
                 }
 
-                this._sessionInfo = value;                
+                this._sessionInfo = value;
 
             }
         }
@@ -51,6 +64,7 @@ namespace NR2003DashM.Util
         public DriverInput DriverInput { get; set; }
 
         public List<int> PitLaps { get; set; }
+        public int LastPitLap { get; set; }
 
         public List<OpponentCarData> OpponentCarDatas { get; set; }
 
@@ -63,21 +77,8 @@ namespace NR2003DashM.Util
         }
 
         public int GetLapsSinceLastPit()
-        {
-            int LastPitLap = 0;
-            try
-            {
-                if (this.PitLaps.Count > 0)
-                {
-                    LastPitLap = this.PitLaps.Last();
-                }
-
-            }
-            catch (Exception ex)
-            {
-
-            }
-            return CurrentLap - LastPitLap;
+        {            
+            return this.CurrentLap - this.LastPitLap;
         }
 
     }
