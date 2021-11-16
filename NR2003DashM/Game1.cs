@@ -39,6 +39,7 @@ namespace NR2003DashM
 
         SpriteFont gameFont;
         SpriteFont MiddleInfoFont;
+        SpriteFont RightInfoFont;
         SpriteFont rpmFont;
         SpriteFont OilTempFont;
         SpriteFont OilPresFont;
@@ -47,6 +48,7 @@ namespace NR2003DashM
 
         Vector2 middleInfo_FontPosition = new Vector2(0, 0);
         Vector2 lapInfo_FontPosition = new Vector2(0, 0);
+        Vector2 rightInfo_FontPosition = new Vector2(0, 0);
 
         Vector2 tach_faceSpritePosition = new Vector2(0, 100);
         Vector2 tach_needleSpritePosition = new Vector2(0, 0); // this gets set by the face
@@ -122,6 +124,7 @@ namespace NR2003DashM
         string LastLapTimeText = "";
         string LapInfoText = "";
         string MiddleInfoText = "";
+        string RightInfoText = "";
         float LapTime;
 
         string TachValueText = "";
@@ -245,6 +248,9 @@ namespace NR2003DashM
             lapInfo_FontPosition.X = 0;
             lapInfo_FontPosition.Y = 0;
 
+            rightInfo_FontPosition.X = (_graphics.PreferredBackBufferWidth / 2) + 60;
+            rightInfo_FontPosition.Y = 0;
+
             // needle.xnb
             tach_needleSprite = Content.Load<Texture2D>("bigneedle");
             // move tach needle to face
@@ -296,6 +302,7 @@ namespace NR2003DashM
 
             gameFont = Content.Load<SpriteFont>("faceFont");
             MiddleInfoFont = Content.Load<SpriteFont>("faceFont");
+            RightInfoFont = Content.Load<SpriteFont>("faceFont");
             rpmFont = Content.Load<SpriteFont>("TachFaceFont");
             OilTempFont = Content.Load<SpriteFont>("SmallGaugeFont");
             OilPresFont = Content.Load<SpriteFont>("SmallGaugeFont");
@@ -491,7 +498,7 @@ namespace NR2003DashM
             }
 
 
-            // logic for updating Text
+            // generate left (lap) text
             LapInfoText = string.Format("Last Lap: {0}\r\nBest Lap: {1}({2})",
                 _raceInfo.LastLapTime,
                 _raceInfo.Standings.fastestLap.time,
@@ -499,10 +506,15 @@ namespace NR2003DashM
                 );
 
 
-            // generate middle text info
+            // generate middle text
             MiddleInfoText = string.Format("Laps since pit: {0}\r\nLaps Left: {1}",
                 _raceInfo.GetLapsSinceLastPit(), 
                 _raceInfo.SessionInfo.lapsRemaining
+                );
+
+            // generate right text
+            RightInfoText = string.Format("Average Lap Time: {0}\r\n",
+                _raceInfo.Standings.averageLapTime
                 );
 
             base.Update(gameTime);
@@ -520,6 +532,7 @@ namespace NR2003DashM
             // Lap Info Block
             _spriteBatch.DrawString(gameFont, LapInfoText, lapInfo_FontPosition, Color.White);
             _spriteBatch.DrawString(MiddleInfoFont, MiddleInfoText, middleInfo_FontPosition, Color.White);
+            _spriteBatch.DrawString(RightInfoFont, RightInfoText, rightInfo_FontPosition, Color.White);
 
             // Tach
             _spriteBatch.Draw(tach_faceSprite, position: tach_faceSpritePosition, sourceRectangle: null, rpmSpriteColor, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
