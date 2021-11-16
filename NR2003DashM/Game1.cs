@@ -224,6 +224,42 @@ namespace NR2003DashM
             //bg
             backgroundSprite = Content.Load<Texture2D>("carbon");
 
+            // Load all our Gauges
+            LoadGauges();
+
+            // Middle info section            
+            LoadTextBlocks();
+        }
+
+        /// <summary>
+        /// All text block content is loaded here
+        /// </summary>
+        private void LoadTextBlocks()
+        {
+            middleInfo_FontPosition.X = (_graphics.PreferredBackBufferWidth / 2) - (tac_faceSpriteX / 2);
+            middleInfo_FontPosition.Y = 0;
+
+            lapInfo_FontPosition.X = 0;
+            lapInfo_FontPosition.Y = 0;
+
+            rightInfo_FontPosition.X = (_graphics.PreferredBackBufferWidth / 2) + 60;
+            rightInfo_FontPosition.Y = 0;
+
+            standings_FontPosition.X = 0;
+            standings_FontPosition.Y = 0;
+
+
+            gameFont = Content.Load<SpriteFont>("faceFont");
+            MiddleInfoFont = Content.Load<SpriteFont>("faceFont");
+            RightInfoFont = Content.Load<SpriteFont>("faceFont");
+            StandingsFont = Content.Load<SpriteFont>("faceFont");
+        }
+
+        /// <summary>
+        /// All Gauge content is loaded here
+        /// </summary>
+        private void LoadGauges()
+        {
             //tach_face.xnb
             tach_faceSprite = Content.Load<Texture2D>("tach_face");
             tach_needleSpriteX = tac_faceSpriteX / 1.28f;
@@ -316,28 +352,6 @@ namespace NR2003DashM
 
             rpmVal = 0;
             oil_tempneedleRoatation = 0;
-
-
-            // Middle info section
-            //lapTime_FontPosition.X = tach_faceSpritePosition.X;
-            middleInfo_FontPosition.X = (_graphics.PreferredBackBufferWidth / 2) - (tac_faceSpriteX / 2);
-            middleInfo_FontPosition.Y = 0;
-
-            //lapInfo_FontPosition.X = tach_faceSpritePosition.X;
-            lapInfo_FontPosition.X = 0;
-            lapInfo_FontPosition.Y = 0;
-
-            rightInfo_FontPosition.X = (_graphics.PreferredBackBufferWidth / 2) + 60;
-            rightInfo_FontPosition.Y = 0;
-
-            standings_FontPosition.X = 0;
-            standings_FontPosition.Y = 0;
-
-
-            gameFont = Content.Load<SpriteFont>("faceFont");
-            MiddleInfoFont = Content.Load<SpriteFont>("faceFont");
-            RightInfoFont = Content.Load<SpriteFont>("faceFont");
-            StandingsFont = Content.Load<SpriteFont>("faceFont");
         }
 
         // the game loop
@@ -465,42 +479,14 @@ namespace NR2003DashM
             oilPresText = Math.Ceiling(oilPresVal).ToString();
             waterTempText = Math.Ceiling(waterTempVal).ToString();
             fuelPresText = Math.Ceiling(fuelPresVal).ToString();
+            
 
-            if (rpmWarning)
-            {
-                rpmSpriteColor = Color.Red;
-            }
-            else
-            {
-                rpmSpriteColor = Color.White;
-            }
-
-            if (oilTempWarning)
-            {
-                oilTempSpriteColor = Color.Red;
-            }
-            else
-            {
-                oilTempSpriteColor = Color.White;
-            }
-
-            if (oilPresWarning)
-            {
-                oilPresSpriteColor = Color.Red;
-            }
-            else
-            {
-                oilPresSpriteColor = Color.White;
-            }
-            if (fuelPresWarning)
-            {
-                fuelPresSpritecolor = Color.Red;
-            }
-            else
-            {
-                fuelPresSpritecolor = Color.White;
-            }
-
+            // set warnings
+            rpmSpriteColor = SetSpriteWarningColors(rpmSpriteColor, rpmWarning);
+            oilTempSpriteColor = SetSpriteWarningColors(oilTempSpriteColor, oilTempWarning);
+            oilPresSpriteColor = SetSpriteWarningColors(oilPresSpriteColor, oilPresWarning);
+            fuelPresSpritecolor = SetSpriteWarningColors(fuelPresSpritecolor, fuelPresWarning);
+            
 
             // generate left (lap) text
             LapInfoText = string.Format("Last Lap: {0}\r\nBest Lap: {1}({2})",
@@ -535,6 +521,31 @@ namespace NR2003DashM
 
 
             base.Update(gameTime);
+        }
+
+
+        // Set the sprite color if there is a warning or not
+        private Color SetSpriteWarningColors(Color SpriteColor, bool Warning)
+        {            
+            if (Warning)
+            {
+                // Flash
+                if (SpriteColor == Color.White)
+                {
+                    SpriteColor = Color.Red;
+                }
+                else
+                {
+                    SpriteColor = Color.White;
+                }
+
+            }
+            else
+            {
+                SpriteColor = Color.White;
+            }
+
+            return SpriteColor;
         }
 
         // anything that draws on the screen goes here
