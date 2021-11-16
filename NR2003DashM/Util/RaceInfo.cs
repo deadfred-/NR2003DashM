@@ -48,7 +48,7 @@ namespace NR2003DashM.Util
                 if (value.sessionCookie != this._sessionInfo.sessionCookie || value.sessionNum != this._sessionInfo.sessionNum)
                 {
                     // reset values because our session chnaged.
-                    this.LapCrossings = new List<LapCrossing>
+                    this.LapCrossings = new List<LapCrossing>();
                     this.OpponentCarDatas = new List<OpponentCarData>();
                     this.PitLaps = new List<int>();
                     this.GaugeData = new GaugeData();
