@@ -362,15 +362,106 @@ namespace NR2003DashM
                 Exit();
 
             // TODO: Add your update logic here 
+#if DEBUG
+            TestGaugesForDebug();
+#endif
+            // get live data
+            if (!testSpin && !testHold)
+            {
+                rpmVal = gaugeRPM;
+                oilTempVal = gaugeOilTemp;
+                oilPresVal = gaugeOilPres;
+                waterTempVal = gaugewWaterTemp;
+                fuelPresVal = gaugeFuelPres;
+            }
+
+            float tachFormula = 1.9f + ((rpmVal / 1000) / 2) - 0.04f;
+            tach_needleRotation = tachFormula;
+
+            float oilFormula = (oilTempVal / 42.55f) + 1.6f;
+            if (oilTempVal <= 100)
+                oilFormula = 3.9f;
+            oil_tempneedleRoatation = oilFormula;
+            oilTempRotation = oilFormula.ToString();
+
+            float waterTempFormula = (waterTempVal / 42.55f) + 1.6f;
+            if (waterTempVal <= 100)
+                waterTempFormula = 3.9f;
+            water_temp_needleRotation = waterTempFormula;
+
+            float oilPresFormula = 3.9f + (oilPresVal / 21.3f);
+            oil_pres_needleRotation = oilPresFormula;
+
+            float fuelPresFormula = 3.9f + (fuelPresVal / 21.3f);
+            fuel_pres_needleRotation = fuelPresFormula;
+            
+            TachValueText = Math.Ceiling(rpmVal).ToString();            
+            oilTempText = Math.Ceiling(oilTempVal).ToString();
+            oilPresText = Math.Ceiling(oilPresVal).ToString();
+            waterTempText = Math.Ceiling(waterTempVal).ToString();
+            fuelPresText = Math.Ceiling(fuelPresVal).ToString();
+
+            // set warnings
+            rpmSpriteColor = SetSpriteWarningColors(rpmSpriteColor, rpmWarning);
+            oilTempSpriteColor = SetSpriteWarningColors(oilTempSpriteColor, oilTempWarning);
+            oilPresSpriteColor = SetSpriteWarningColors(oilPresSpriteColor, oilPresWarning);
+            fuelPresSpritecolor = SetSpriteWarningColors(fuelPresSpritecolor, fuelPresWarning);
+
+
+            // generate left (lap) text
+            LapInfoText = string.Format("Last Lap: {0}\r\nBest Lap: {1}({2})",
+                _raceInfo.LastLapTime,
+                _raceInfo.Standings.fastestLap.time,
+                _raceInfo.Standings.fastestLap.lap
+                );
+
+
+            // generate middle text
+            MiddleInfoText = string.Format("Laps since pit: {0}\r\nLaps Left: {1}",
+                _raceInfo.GetLapsSinceLastPit(),
+                _raceInfo.SessionInfo.lapsRemaining
+                );
+
+            // generate right text
+            RightInfoText = string.Format("Average Lap Time: {0}\r\n",
+                _raceInfo.Standings.averageLapTime
+                );
+
+
+            // generate standinsg
+            StandingsText = "Standings:ID time lap lapslead incidents\r\n";
+            if (_raceInfo.Standings.position != null && !drawTopTextBlock)
+            {
+                foreach (var rec in _raceInfo.Standings.position)
+                {
+                    if (rec.carIdx != -1)
+                        StandingsText += string.Format("{0}  {1}  {2}  {3}  {4}\r\n", rec.carIdx, rec.time, rec.lap, rec.lapsLead, rec.incidents);
+                }
+            }
+
+
+            base.Update(gameTime);
+        }
+
+        private void TestGaugesForDebug()
+        {
             if (Keyboard.GetState().IsKeyDown(Keys.D9))
             {
+                // spin test
                 testSpin = true;
                 testHold = false;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.D0))
             {
+                // hold test
                 testSpin = false;
                 testHold = true;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.D8))
+            {
+                // Disable test
+                testSpin = false;
+                testHold = false;
             }
             if (testSpin)
             {
@@ -440,87 +531,6 @@ namespace NR2003DashM
                     fuelPresVal = 0;
                 }
             }
-
-            // get live data
-            if (!testSpin && !testHold)
-            {
-                rpmVal = gaugeRPM;
-                oilTempVal = gaugeOilTemp;
-                oilPresVal = gaugeOilPres;
-                waterTempVal = gaugewWaterTemp;
-                fuelPresVal = gaugeFuelPres;
-            }
-
-            float tachFormula = 1.9f + ((rpmVal / 1000) / 2) - 0.04f;
-            tach_needleRotation = tachFormula;
-
-            float oilFormula = (oilTempVal / 42.55f) + 1.6f;
-            if (oilTempVal <= 100)
-                oilFormula = 3.9f;
-            oil_tempneedleRoatation = oilFormula;
-            oilTempRotation = oilFormula.ToString();
-
-            float waterTempFormula = (waterTempVal / 42.55f) + 1.6f;
-            if (waterTempVal <= 100)
-                waterTempFormula = 3.9f;
-            water_temp_needleRotation = waterTempFormula;
-
-            float oilPresFormula = 3.9f + (oilPresVal / 21.3f);
-            oil_pres_needleRotation = oilPresFormula;
-
-            float fuelPresFormula = 3.9f + (fuelPresVal / 21.3f);
-            fuel_pres_needleRotation = fuelPresFormula;
-
-
-            //TachValueText = rpmVal.ToString();
-            TachValueText = Math.Ceiling(rpmVal).ToString();
-            TachRotationText = tach_needleRotation.ToString();
-            oilTempText = Math.Ceiling(oilTempVal).ToString();
-            oilPresText = Math.Ceiling(oilPresVal).ToString();
-            waterTempText = Math.Ceiling(waterTempVal).ToString();
-            fuelPresText = Math.Ceiling(fuelPresVal).ToString();
-            
-
-            // set warnings
-            rpmSpriteColor = SetSpriteWarningColors(rpmSpriteColor, rpmWarning);
-            oilTempSpriteColor = SetSpriteWarningColors(oilTempSpriteColor, oilTempWarning);
-            oilPresSpriteColor = SetSpriteWarningColors(oilPresSpriteColor, oilPresWarning);
-            fuelPresSpritecolor = SetSpriteWarningColors(fuelPresSpritecolor, fuelPresWarning);
-            
-
-            // generate left (lap) text
-            LapInfoText = string.Format("Last Lap: {0}\r\nBest Lap: {1}({2})",
-                _raceInfo.LastLapTime,
-                _raceInfo.Standings.fastestLap.time,
-                _raceInfo.Standings.fastestLap.lap
-                );
-
-
-            // generate middle text
-            MiddleInfoText = string.Format("Laps since pit: {0}\r\nLaps Left: {1}",
-                _raceInfo.GetLapsSinceLastPit(),
-                _raceInfo.SessionInfo.lapsRemaining
-                );
-
-            // generate right text
-            RightInfoText = string.Format("Average Lap Time: {0}\r\n",
-                _raceInfo.Standings.averageLapTime
-                );
-
-
-            // generate standinsg
-            StandingsText = "Standings:ID time lap lapslead incidents\r\n";
-            if (_raceInfo.Standings.position != null && !drawTopTextBlock)
-            {
-                foreach (var rec in _raceInfo.Standings.position)
-                {
-                    if (rec.carIdx != -1)
-                        StandingsText += string.Format("{0}  {1}  {2}  {3}  {4}\r\n", rec.carIdx, rec.time, rec.lap, rec.lapsLead, rec.incidents);
-                }
-            }
-
-
-            base.Update(gameTime);
         }
 
 
