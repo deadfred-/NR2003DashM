@@ -18,7 +18,10 @@ namespace NR2003DashM
 
         private RaceInfo _raceInfo;
 
+
         // global app stuff
+        List<eSimDataType> requestedDataTypes;
+
         bool testSpin = false;
         bool testHold = false;
         bool drawTopTextBlock = true;
@@ -197,6 +200,29 @@ namespace NR2003DashM
             // TODO: Add your initialization logic here
 
             base.Initialize();
+
+            //Set up our requested telemetry data
+            requestedDataTypes = new List<eSimDataType>
+            {
+                eSimDataType.kSampleHeader,
+                eSimDataType.kChassisData,
+                eSimDataType.kWheelData,
+                eSimDataType.kTireData,
+                eSimDataType.kDrivelineData,
+                eSimDataType.kDriverInput,
+                eSimDataType.kGaugeData,
+                //eSimDataType.kOpponentCarData,
+                eSimDataType.kCurrentWeekend,
+                eSimDataType.kDriverInCar,
+                eSimDataType.kGameIsPaused,
+                //eSimDataType.kCarSetup,
+                eSimDataType.kPitStop,
+                eSimDataType.kDriverEntry,
+                eSimDataType.kDriverWithdrawl,
+                eSimDataType.kSessionInfo,
+                eSimDataType.kLapCrossing,
+                //eSimDataType.kStandings
+            };
 
             _raceInfo = new RaceInfo();
 
@@ -621,7 +647,7 @@ namespace NR2003DashM
                 while (true)
                 {
                     NR2003Binding.RequestData();
-                    //Thread.Sleep(27);
+                    Thread.Sleep(1);
                 }
             }
             catch (Exception ex)
@@ -698,6 +724,7 @@ namespace NR2003DashM
                                         LastLapTimeText = string.Format("{0:0.000}", (crossedAt - lap).TotalSeconds);
                                         lap = crossedAt;
                                         lapCache = _lap;
+                                        _raceInfo.LapCrossings.Add(_lap);
                                     }
                                     else if (carIdx == 0)
                                     {
@@ -706,8 +733,8 @@ namespace NR2003DashM
                                         LastLapTimeText = string.Format("{0:0.000}", (crossedAt - lap).TotalSeconds);
                                         lap = crossedAt;
                                         lapCache = _lap;
+                                        _raceInfo.LapCrossings.Add(_lap);
                                     }
-                                    _raceInfo.LapCrossings.Add(_lap);
                                 }
                             }
                         }
@@ -738,11 +765,14 @@ namespace NR2003DashM
                             _raceInfo.LastPitLap = _raceInfo.CurrentLap;
                         }
 
+                        // ignore for now
+                        /*
                         IntPtr od = NR2003Binding.GetOpponentCarData();
                         if (od != IntPtr.Zero)
                         {
                             _raceInfo.OpponentCarDatas = UtilFunctions.GetStructArrayFromIntPtr<OpponentCarData>(od, 48).ToList();
                         }
+                        */
 
                         // driver entry
                         // this needs work...

@@ -7,6 +7,51 @@ namespace NR2003DashM
 {
     public class NR2003Types
     {
+
+        // The types of telemetry that the app can ask the sim to generate.
+        // The first group are sample items, and will be generated as a
+        // group each sampling period (36 or 288Hz).
+        // The second group are sample items, but will only be generated
+        // at a 36Hz period.
+        // The third group are state items, and will be generated as the
+        // need arises.
+        // You should never request either kNoStateInfo, or kSampleFooter,
+        // as they are used internally by the telemetry system.
+        public enum eSimDataType
+        {
+            kSampleHeader,
+            kChassisData,
+            kWheelData,
+            kTireData,
+            kDrivelineData,
+            kDriverInput,
+
+            // these samples are available at only 36Hz, even when 288Hz is selected
+            kGaugeData = 64,
+            kOpponentCarData,
+
+            // Add any new per-sample items above here.
+            // The app must NOT use this data type
+            kNoStateInfo = 127,
+            // Add any "state" data below here.
+
+            kCurrentWeekend,
+            kDriverInCar,
+            kGameIsPaused,
+            kCarSetup,
+            kPitStop,
+            kDriverEntry,
+            kDriverWithdrawl,
+            kSessionInfo,
+            kLapCrossing,
+            kStandings,
+
+
+            // DO NOT ADD ANY ITEMS BELOW HERE
+            // The app must NOT use this data type.
+            kSampleFooter = 255
+        };
+
         [StructLayoutAttribute(LayoutKind.Sequential)]
         public struct GaugeData
         {
@@ -284,6 +329,50 @@ namespace NR2003DashM
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
             public char[] carFile;// .car file name
         }
+
+
+        // The types of telemetry that the app can ask the sim to generate.
+// The first group are sample items, and will be generated as a
+// group each sampling period (36 or 288Hz).
+// The second group are sample items, but will only be generated
+// at a 36Hz period.
+// The third group are state items, and will be generated as the
+// need arises.
+// You should never request either kNoStateInfo, or kSampleFooter,
+// as they are used internally by the telemetry system.
+enum eSimDataType {
+	kSampleHeader,
+	kChassisData,
+	kWheelData,
+	kTireData,
+	kDrivelineData,
+	kDriverInput,
+
+	// these samples are available at only 36Hz, even when 288Hz is selected
+	kGaugeData = 64,
+	kOpponentCarData,
+
+	// Add any new per-sample items above here.
+		// The app must NOT use this data type
+		kNoStateInfo = 127,
+	// Add any "state" data below here.
+
+	kCurrentWeekend,
+	kDriverInCar,
+	kGameIsPaused,
+	kCarSetup,
+	kPitStop,
+	kDriverEntry,
+	kDriverWithdrawl,
+	kSessionInfo,
+	kLapCrossing,
+	kStandings,
+
+
+	// DO NOT ADD ANY ITEMS BELOW HERE
+	// The app must NOT use this data type.
+	kSampleFooter	= 255
+};
 
     }
 

@@ -18,7 +18,12 @@ namespace NR2003DashM.Util
                 if (this.LapCrossings.Count > 0)
                 {
                     // get the most recent crossing where our carIDx = 0 (our car)
-                    _CurrentLap = BitConverter.ToInt32(LapCrossings.Where(x => BitConverter.ToInt32(x.carIdx) == 0).Last().lapNum);
+                    var laps = LapCrossings.Where(x => BitConverter.ToInt32(x.carIdx) == 0).ToList();
+                    if (laps.Count > 0)
+                    {
+                        _CurrentLap = BitConverter.ToInt32(laps.Last().lapNum);
+                    }
+                    
                 }
                 return _CurrentLap;
             }
